@@ -60,34 +60,17 @@ public abstract class JavaImpl {
     private static JavaImpl HANDLER;
 
     static {
-        JavaImpl h = null;
-        try {
-            h = Java14.getInstance();
-        }
-        catch (Throwable t) {
-            // System.out.println( t.toString() );
-            System.out.println("commons-ssl reverting to: Java 1.3 + jsse.jar");
-        }
-        if (h == null) {
-            h = Java13.getInstance();
-        }
-        HANDLER = h;
+        HANDLER = Java14.getInstance();
     }
 
     public static void downgrade() {
-        if (HANDLER instanceof Java14) {
-            HANDLER = Java13.getInstance();
-        }
     }
 
     public static boolean isJava13() {
-        return HANDLER instanceof Java13;
+        return false;
     }
 
     public static void uprade() {
-        if (HANDLER instanceof Java13) {
-            HANDLER = Java14.getInstance();
-        }
     }
 
     public abstract String getVersion();
