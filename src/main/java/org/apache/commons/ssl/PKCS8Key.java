@@ -997,7 +997,7 @@ public class PKCS8Key {
 
     public static byte[] encode(ASN1Encodable der) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(1024);
-        ASN1OutputStream out = new ASN1OutputStream(baos);
+        ASN1OutputStream out = ASN1OutputStream.create(baos);
         out.writeObject(der);
         out.close();
         return baos.toByteArray();
