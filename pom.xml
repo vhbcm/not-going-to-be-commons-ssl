@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.narupley</groupId>
   <artifactId>not-going-to-be-commons-ssl</artifactId>
-  <version>0.3.20-bcm1-SNAPSHOT</version>
+  <version>0.3.20-bcm1</version>
   <packaging>jar</packaging>
   <name>Not-Going-To-Be-Commons-SSL</name>
   <description>A Java 9+ compliant fork of Not-Yet-Commons-SSL</description>
@@ -25,6 +25,7 @@
     <connection>scm:git:git://github.com/vhbcm/not-going-to-be-commons-ssl.git</connection>
     <developerConnection>scm:git:ssh://github.com:vhbcm/not-going-to-be-commons-ssl.git</developerConnection>
     <url>https://github.com/vhbcm/not-going-to-be-commons-ssl/tree/master</url>
+    <tag>not-going-to-be-commons-ssl-0.3.20-bcm1</tag>
   </scm>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
