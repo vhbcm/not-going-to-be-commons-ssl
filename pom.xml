@@ -6,7 +6,7 @@
   <packaging>jar</packaging>
   <name>Not-Going-To-Be-Commons-SSL</name>
   <description>A Java 9+ compliant fork of Not-Yet-Commons-SSL</description>
-  <url>https://github.com/narupley/not-going-to-be-commons-ssl</url>
+  <url>https://github.com/vhbcm/not-going-to-be-commons-ssl</url>
   <licenses>
     <license>
       <name>The Apache License, Version 2.0</name>
@@ -22,16 +22,10 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git://github.com/narupley/not-going-to-be-commons-ssl.git</connection>
-    <developerConnection>scm:git:ssh://github.com:narupley/not-going-to-be-commons-ssl.git</developerConnection>
-    <url>https://github.com/narupley/not-going-to-be-commons-ssl/tree/master</url>
+    <connection>scm:git:git://github.com/vhbcm/not-going-to-be-commons-ssl.git</connection>
+    <developerConnection>scm:git:ssh://github.com:vhbcm/not-going-to-be-commons-ssl.git</developerConnection>
+    <url>https://github.com/vhbcm/not-going-to-be-commons-ssl/tree/master</url>
   </scm>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.jar.name>not-going-to-be-commons-ssl</project.jar.name>
