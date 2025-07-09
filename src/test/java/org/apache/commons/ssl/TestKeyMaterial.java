@@ -64,7 +64,7 @@ public class TestKeyMaterial {
             return;
         }
         assertEquals("keymaterial-contains-1-alias", 1, km.getAliases().size());
-        for (X509Certificate[] cert : (List<X509Certificate[]>) km.getAssociatedCertificateChains()) {
+        for (X509Certificate[] cert : km.getAssociatedCertificateChains()) {
             for (X509Certificate c : cert) {
                 assertTrue("certchain-valid-dates", c.getNotAfter().after(today));
             }
