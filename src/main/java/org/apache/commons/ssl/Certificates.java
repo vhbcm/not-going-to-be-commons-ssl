@@ -31,6 +31,7 @@
 
 package org.apache.commons.ssl;
 
+import java.nio.charset.StandardCharsets;
 import javax.naming.InvalidNameException;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -238,14 +239,7 @@ public class Certificates {
             return httpCRLS;
         } else {
             String s;
-            try {
-                s = new String(bytes, "UTF-8");
-            }
-            catch (UnsupportedEncodingException uee) {
-                // We're screwed if this thing has more than one CRL, because
-                // the "indeOf( (char) 65533 )" below isn't going to work.
-                s = new String(bytes);
-            }
+            s = new String(bytes, StandardCharsets.UTF_8);
             int pos = 0;
             while (pos >= 0) {
                 int x = -1, y;

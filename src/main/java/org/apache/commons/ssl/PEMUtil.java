@@ -31,6 +31,7 @@
 
 package org.apache.commons.ssl;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.ssl.util.ByteArrayReadLine;
 
 import java.io.ByteArrayInputStream;
@@ -53,14 +54,14 @@ public class PEMUtil {
     final static String LINE_SEPARATOR = System.getProperty("line.separator");
 
     public static byte[] encode(Collection items) throws IOException {
-        final byte[] LINE_SEPARATOR_BYTES = LINE_SEPARATOR.getBytes("UTF-8");
+        final byte[] LINE_SEPARATOR_BYTES = LINE_SEPARATOR.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
         Iterator it = items.iterator();
         while (it.hasNext()) {
             PEMItem item = (PEMItem) it.next();
-            out.write("-----BEGIN ".getBytes("UTF-8"));
-            out.write(item.pemType.getBytes("UTF-8"));
-            out.write("-----".getBytes("UTF-8"));
+            out.write("-----BEGIN ".getBytes(StandardCharsets.UTF_8));
+            out.write(item.pemType.getBytes(StandardCharsets.UTF_8));
+            out.write("-----".getBytes(StandardCharsets.UTF_8));
             out.write(LINE_SEPARATOR_BYTES);
 
             byte[] derBytes = item.getDerBytes();
@@ -77,9 +78,9 @@ public class PEMUtil {
                 out.write(base64Line);
                 out.write(LINE_SEPARATOR_BYTES);
             }
-            out.write("-----END ".getBytes("UTF-8"));
-            out.write(item.pemType.getBytes("UTF-8"));
-            out.write("-----".getBytes("UTF-8"));
+            out.write("-----END ".getBytes(StandardCharsets.UTF_8));
+            out.write(item.pemType.getBytes(StandardCharsets.UTF_8));
+            out.write("-----".getBytes(StandardCharsets.UTF_8));
             out.write(LINE_SEPARATOR_BYTES);
         }
         return out.toByteArray();
@@ -244,7 +245,7 @@ public class PEMUtil {
             throw new IOException("Not an RSA or DSA key");
         }
         byte[] pem = encode(Collections.singleton(item));
-        return new String(pem, "UTF-8");
+        return new String(pem, StandardCharsets.UTF_8);
     }
 
 }

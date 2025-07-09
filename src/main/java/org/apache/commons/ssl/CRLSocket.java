@@ -1,5 +1,6 @@
 package org.apache.commons.ssl;
 
+import java.nio.charset.StandardCharsets;
 import javax.net.SocketFactory;
 
 import org.apache.commons.logging.Log;
@@ -67,7 +68,7 @@ public class CRLSocket extends SSLClient {
         String hello
                 = "HEAD / HTTP/1.1\r\n"
                 + "Host:" + host + ":" + port + "\r\n\r\n";
-        byte[] helloBytes = hello.getBytes("UTF-8");
+        byte[] helloBytes = hello.getBytes(StandardCharsets.UTF_8);
 
         System.out.println("About to getInstance() ");
         CRLSocket sf = getPlainInstance();
@@ -80,7 +81,7 @@ public class CRLSocket extends SSLClient {
         out.write(helloBytes);
         out.flush();
 
-        System.out.println("\n" + new String(helloBytes, "UTF-8"));
+        System.out.println("\n" + new String(helloBytes, StandardCharsets.UTF_8));
 
         InputStream in = s.getInputStream();
         int c = in.read();

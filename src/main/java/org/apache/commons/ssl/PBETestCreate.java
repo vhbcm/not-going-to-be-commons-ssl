@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
@@ -44,7 +45,7 @@ public class PBETestCreate {
             }
         }
 
-        byte[] toEncrypt = "Hello World!".getBytes("UTF-8");
+        byte[] toEncrypt = "Hello World!".getBytes(StandardCharsets.UTF_8);
         char[] pwd = "changeit".toCharArray();
         it = ciphers.iterator();
         while (it.hasNext()) {
