@@ -329,8 +329,8 @@ public class Ping {
                     tc = TrustMaterial.DEFAULT;
                 }
                 Object[] trustManagers = tc.getTrustManagers();
-                for (int i = 0; i < trustManagers.length; i++) {
-                    JavaImpl.testTrust(trustManagers[i], chain, authType);
+                for (final Object trustManager : trustManagers) {
+                    JavaImpl.testTrust(trustManager, chain, authType);
                 }
             }
         }
@@ -358,8 +358,8 @@ public class Ping {
         try {
             X509Certificate[] chain = ssl.getCurrentServerChain();
             if (chain != null) {
-                for (int i = 0; i < chain.length; i++) {
-                    Certificates.checkCRL(chain[i]);
+                for (final X509Certificate x509Certificate : chain) {
+                    Certificates.checkCRL(x509Certificate);
                 }
             }
         }
@@ -373,8 +373,8 @@ public class Ping {
         try {
             X509Certificate[] chain = ssl.getCurrentServerChain();
             if (chain != null) {
-                for (int i = 0; i < chain.length; i++) {
-                    chain[i].checkValidity();
+                for (final X509Certificate x509Certificate : chain) {
+                    x509Certificate.checkValidity();
                 }
             }
         }
@@ -450,8 +450,8 @@ public class Ping {
             } else if (arg == ARG_HOST_HEADER) {
                 hostHeader = values[0].trim();
             } else if (arg == ARG_TRUST_CERT) {
-                for (int i = 0; i < values.length; i++) {
-                    File f = new File(values[i]);
+                for (final String value : values) {
+                    File f = new File(value);
                     if (f.exists()) {
                         if (trustChain == null) {
                             trustChain = new TrustChain();

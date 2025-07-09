@@ -987,8 +987,8 @@ public class PKCS8Key {
     }
 
     private static boolean allZeroes(byte[] b) {
-        for (int i = 0; i < b.length; i++) {
-            if (b[i] != 0) {
+        for (final byte value : b) {
+            if (value != 0) {
                 return false;
             }
         }

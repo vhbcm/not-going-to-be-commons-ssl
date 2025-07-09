@@ -197,8 +197,8 @@ public class X509CertificateChainBuilder {
         Collection c = cf.generateCertificates(f2);
 
         X509Certificate[] path = buildPath(theOne, c);
-        for (int i = 0; i < path.length; i++) {
-            System.out.println(Certificates.getCN(path[i]));
+        for (final X509Certificate x509Certificate : path) {
+            System.out.println(Certificates.getCN(x509Certificate));
         }
     }
 }

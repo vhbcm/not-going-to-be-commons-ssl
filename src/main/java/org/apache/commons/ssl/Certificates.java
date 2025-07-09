@@ -249,9 +249,9 @@ public class Certificates {
                 indexes[2] = s.indexOf("file", pos);
                 indexes[3] = s.indexOf("ftp", pos);
                 Arrays.sort(indexes);
-                for (int i = 0; i < indexes.length; i++) {
-                    if (indexes[i] >= 0) {
-                        x = indexes[i];
+                for (final int index : indexes) {
+                    if (index >= 0) {
+                        x = index;
                         break;
                     }
                 }
@@ -575,8 +575,8 @@ public class Certificates {
     }
 
     public static void main(String[] args) throws Exception {
-        for (int i = 0; i < args.length; i++) {
-            FileInputStream in = new FileInputStream(args[i]);
+        for (final String arg : args) {
+            FileInputStream in = new FileInputStream(arg);
             TrustMaterial tm = new TrustMaterial(in);
             Iterator it = tm.getCertificates().iterator();
             while (it.hasNext()) {

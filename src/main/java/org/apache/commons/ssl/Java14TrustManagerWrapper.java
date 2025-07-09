@@ -108,8 +108,7 @@ public class Java14TrustManagerWrapper implements X509TrustManager {
             }
         }
 
-        for (int i = 0; i < chain.length; i++) {
-            X509Certificate c = chain[i];
+        for (X509Certificate c : chain) {
             if (ssl.getCheckExpiry()) {
                 c.checkValidity();
             }

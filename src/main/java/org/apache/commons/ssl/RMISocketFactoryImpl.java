@@ -292,9 +292,9 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
             // If they gave us "hostname.com", this will give us the various
             // IP addresses:
             addresses = InetAddress.getAllByName(host);
-            for (int i = 0; i < addresses.length; i++) {
-                String name1 = addresses[i].getHostName();
-                String name2 = addresses[i].getHostAddress();
+            for (final InetAddress address : addresses) {
+                String name1 = address.getHostName();
+                String name2 = address.getHostAddress();
                 names.add(name1.trim().toLowerCase());
                 names.add(name2.trim().toLowerCase());
             }
@@ -312,9 +312,9 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
             host = InetAddress.getByName(host).getHostName();
             names.add(host.trim().toLowerCase());
             addresses = InetAddress.getAllByName(host);
-            for (int i = 0; i < addresses.length; i++) {
-                String name1 = addresses[i].getHostName();
-                String name2 = addresses[i].getHostAddress();
+            for (final InetAddress address : addresses) {
+                String name1 = address.getHostName();
+                String name2 = address.getHostAddress();
                 names.add(name1.trim().toLowerCase());
                 names.add(name2.trim().toLowerCase());
             }

@@ -222,8 +222,8 @@ public class KeyStoreBuilder {
             final RSAPrivateCrtKey rsa = (RSAPrivateCrtKey) key;
             BigInteger publicExponent = rsa.getPublicExponent();
             BigInteger modulus = rsa.getModulus();
-            for (int i = 0; i < chain.length; i++) {
-                X509Certificate c = (X509Certificate) chain[i];
+            for (final Certificate certificate : chain) {
+                X509Certificate c = (X509Certificate) certificate;
                 PublicKey pub = c.getPublicKey();
                 if (pub instanceof RSAPublicKey) {
                     RSAPublicKey certKey = (RSAPublicKey) pub;
@@ -695,8 +695,8 @@ public class KeyStoreBuilder {
                 pkcs8DerBytes = pkcs8.getDecryptedBytes();
             }
             if (chain != null && chain.length > 0) {
-                for (int i = 0; i < chain.length; i++) {
-                    X509Certificate x509 = (X509Certificate) chain[i];
+                for (final Certificate certificate : chain) {
+                    X509Certificate x509 = (X509Certificate) certificate;
                     byte[] derBytes = x509.getEncoded();
                     PEMItem item = new PEMItem(derBytes, "CERTIFICATE");
                     pemItems.add(item);

@@ -358,9 +358,9 @@ public interface HostnameVerifier extends javax.net.ssl.HostnameVerifier {
                 }
             }
             if (subjectAlts != null) {
-                for (int i = 0; i < subjectAlts.length; i++) {
-                    if (subjectAlts[i] != null) {
-                        names.add(subjectAlts[i]);
+                for (final String subjectAlt : subjectAlts) {
+                    if (subjectAlt != null) {
+                        names.add(subjectAlt);
                     }
                 }
             }
@@ -394,8 +394,8 @@ public interface HostnameVerifier extends javax.net.ssl.HostnameVerifier {
                                      !isIP4Address(cn) &&
                                      acceptableCountryWildcard(cn);
 
-                for (int i = 0; i < hosts.length; i++) {
-                    final String hostName = hosts[i].trim().toLowerCase();
+                for (final String host : hosts) {
+                    final String hostName = host.trim().toLowerCase();
                     if (doWildcard) {
                         match = hostName.endsWith(cn.substring(1));
                         if (match && strictWithSubDomains) {
