@@ -85,7 +85,7 @@ public class CRLSocket extends SSLClient {
 
         InputStream in = s.getInputStream();
         int c = in.read();
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         System.out.println("Reading: ");
         System.out.println("================================================================================");
         while (c >= 0) {

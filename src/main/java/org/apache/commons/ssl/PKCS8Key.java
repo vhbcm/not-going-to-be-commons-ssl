@@ -1047,7 +1047,7 @@ public class PKCS8Key {
                     } else if (keySize < 100) {
                         keySizeStr = " " + keySizeStr;
                     }
-                    StringBuffer buf = new StringBuffer(key.getTransformation());
+                    StringBuilder buf = new StringBuilder(key.getTransformation());
                     int maxLen = "Blowfish/CBC/PKCS5Padding".length();
                     for (int j = buf.length(); j < maxLen; j++) {
                         buf.append(' ');

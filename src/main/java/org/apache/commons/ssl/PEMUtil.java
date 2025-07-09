@@ -171,7 +171,7 @@ public class PEMUtil {
     }
 
     public static String formatRSAPrivateKey(RSAPrivateCrtKey key) {
-        StringBuffer buf = new StringBuffer(2048);
+        StringBuilder buf = new StringBuilder(2048);
         buf.append("Private-Key:");
         buf.append(LINE_SEPARATOR);
         buf.append("modulus:");
@@ -209,7 +209,7 @@ public class PEMUtil {
 
     public static String formatBigInteger(BigInteger bi, int length) {
         String s = bi.toString(16);
-        StringBuffer buf = new StringBuffer(s.length());
+        StringBuilder buf = new StringBuilder(s.length());
         int zeroesToAppend = length - s.length();
         int count = 0;
         buf.append("    ");

@@ -184,7 +184,7 @@ public class Version {
         }
 
         public static String formatVersion(String version, String compileTime) {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append(version);
             buf.append("   Compiled: [");
             buf.append(compileTime);

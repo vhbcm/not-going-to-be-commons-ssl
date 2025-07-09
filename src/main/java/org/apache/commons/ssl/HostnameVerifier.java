@@ -331,7 +331,7 @@ public interface HostnameVerifier extends javax.net.ssl.HostnameVerifier {
                           final boolean strictWithSubDomains)
             throws SSLException {
             // Build up lists of allowed hosts For logging/debugging purposes.
-            StringBuffer buf = new StringBuffer(32);
+            StringBuilder buf = new StringBuilder(32);
             buf.append('<');
             for (int i = 0; i < hosts.length; i++) {
                 String h = hosts[i];
@@ -370,7 +370,7 @@ public interface HostnameVerifier extends javax.net.ssl.HostnameVerifier {
             }
 
             // StringBuffer for building the error message.
-            buf = new StringBuffer();
+            buf = new StringBuilder();
 
             boolean match = false;
             out:

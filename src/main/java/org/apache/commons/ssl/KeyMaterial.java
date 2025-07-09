@@ -264,7 +264,7 @@ public class KeyMaterial extends TrustMaterial {
         List aliases = getAliases();
         Iterator it = chains.iterator();
         Iterator aliasesIt = aliases.iterator();
-        StringBuffer buf = new StringBuffer(8192);
+        StringBuilder buf = new StringBuilder(8192);
         while (it.hasNext()) {
             X509Certificate[] certs = (X509Certificate[]) it.next();
             String alias = (String) aliasesIt.next();

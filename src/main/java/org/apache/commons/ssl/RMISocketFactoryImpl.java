@@ -494,7 +494,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
             boolean isPlain = tryPlain || (s != null && ssl == null);
             String socket = isPlain ? "RMI plain-socket " : "RMI ssl-socket ";
             String localIP = local != null ? local.getHostAddress() : "ANY";
-            StringBuffer buf = new StringBuffer(64);
+            StringBuilder buf = new StringBuilder(64);
             buf.append(socket);
             buf.append(localIP);
             buf.append(" --> ");

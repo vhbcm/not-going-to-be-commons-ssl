@@ -162,7 +162,7 @@ public class Certificates {
 
     public static String toString(byte[] x509Encoded) {
         byte[] encoded = Base64.encodeBase64(x509Encoded);
-        StringBuffer buf = new StringBuffer(encoded.length + 100);
+        StringBuilder buf = new StringBuilder(encoded.length + 100);
         buf.append("-----BEGIN CERTIFICATE-----\n");
         for (int i = 0; i < encoded.length; i += 64) {
             if (encoded.length - i >= 64) {
@@ -191,7 +191,7 @@ public class Certificates {
         if (subject.equals(issuer)) {
             issuer = "self-signed";
         }
-        StringBuffer buf = new StringBuffer(128);
+        StringBuilder buf = new StringBuilder(128);
         if (htmlStyle) {
             buf.append("<strong class=\"cn\">");
         }

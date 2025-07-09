@@ -59,7 +59,7 @@ class ASN1Structure {
     byte[] smallPayload;
 
     public String toString() {
-        StringBuffer buf = new StringBuffer(256);
+        StringBuilder buf = new StringBuilder(256);
         buf.append("------ ASN.1 PKCS Structure ------");
         buf.append("\noid1:    ");
         buf.append(oid1);

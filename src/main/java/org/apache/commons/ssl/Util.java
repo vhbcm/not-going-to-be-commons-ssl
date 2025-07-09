@@ -304,7 +304,7 @@ public class Util {
         if (diff == 0) {
             return s;
         } else if (diff > 0) {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             if (left) {
                 for (int i = 0; i < diff; i++) {
                     sb.append(' ');
@@ -393,7 +393,7 @@ public class Util {
         }
         if (st.hasMoreTokens()) {
             String tok = st.nextToken();
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.append(tok);
             if (st.hasMoreTokens()) {
                 tok = st.nextToken();
