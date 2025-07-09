@@ -47,7 +47,6 @@ import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
-
 import org.apache.commons.ssl.util.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
@@ -100,7 +99,6 @@ public class ASN1Util {
         }
     }
 
-
     public static void analyze(ASN1Encodable seq, ASN1Structure pkcs8,
                                int depth) {
         String tag = null;
@@ -116,7 +114,20 @@ public class ASN1Util {
             DERTaggedObject derTag = (DERTaggedObject) seq;
             tag = Integer.toString(derTag.getTagNo());
             Vector v = new Vector();
-            v.add(derTag.getObject());
+            // XXX This is the original getObject implementation of getObject() that has been removed.
+            // XXX The code below tries to replace it.
+            //
+            //    public ASN1Primitive getObject() {
+            //        if (BERTags.CONTEXT_SPECIFIC != getTagClass()) {
+            //            throw new IllegalStateException("this method only valid for CONTEXT_SPECIFIC tags");
+            //        }
+            //
+            //        return obj.toASN1Primitive();
+            //    }
+            if (!derTag.hasContextTag()) {
+                throw new IllegalStateException("Missing CONTEXT_SPECIFIC tag");
+            }
+            v.add(derTag.getBaseObject().toASN1Primitive());
             en = v.elements();
         } else {
             throw new IllegalArgumentException("DEREncodable must be one of: DLSequence, DERSet, DERTaggedObject");
