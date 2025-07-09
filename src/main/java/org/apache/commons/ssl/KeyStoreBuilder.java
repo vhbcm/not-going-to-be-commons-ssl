@@ -691,7 +691,7 @@ public class KeyStoreBuilder {
                 PKCS8Key pkcs8 = new PKCS8Key(derBytes, null);
                 pkcs8DerBytes = pkcs8.getDecryptedBytes();
             }
-            if (chain != null && chain.length > 0) {
+            if (chain != null) {
                 for (final Certificate certificate : chain) {
                     X509Certificate x509 = (X509Certificate) certificate;
                     byte[] derBytes = x509.getEncoded();

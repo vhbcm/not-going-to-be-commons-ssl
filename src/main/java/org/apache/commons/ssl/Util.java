@@ -124,7 +124,7 @@ public class Util {
     }
 
     public static String trim(final String s) {
-        if (s == null || "".equals(s)) {
+        if (s == null || s.isEmpty()) {
             return s;
         }
         int i = 0;
@@ -352,7 +352,7 @@ public class Util {
                         v = cargs[++i];
                         list.add(v);
                     }
-                    args.put(a, list.toArray(new String[list.size()]));
+                    args.put(a, list.toArray(new String[0]));
                 }
             } else {
                 args.put(a, EMPTY_VALUES);

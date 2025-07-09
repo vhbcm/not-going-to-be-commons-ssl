@@ -690,7 +690,7 @@ public class OpenSSL {
         throws IOException, GeneralSecurityException {
         if (args.length < 3) {
             System.out.println(Version.versionString());
-            System.out.println("Pure-java utility to decrypt files previously encrypted by \'openssl enc\'");
+            System.out.println("Pure-java utility to decrypt files previously encrypted by 'openssl enc'");
             System.out.println();
             System.out.println("Usage:  java -cp commons-ssl.jar org.apache.commons.ssl.OpenSSL [args]");
             System.out.println("        [args]   == [password] [cipher] [file-to-decrypt]");

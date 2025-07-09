@@ -41,5 +41,5 @@ import java.rmi.RemoteException;
  * @since 22-Feb-2007
  */
 public interface RemoteInteger extends Remote {
-    public int getInt() throws RemoteException;
+    int getInt() throws RemoteException;
 }

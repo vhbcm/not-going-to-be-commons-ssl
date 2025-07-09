@@ -100,14 +100,11 @@ public class SSLProxyServer {
                 }
 
                 int avail = in.available();
-                in.skip(avail);
-                Thread.yield();
-                avail = in.available();
-                while (avail != 0) {
+                do {
                     in.skip(avail);
                     Thread.yield();
                     avail = in.available();
-                }
+                } while (avail != 0);
 
                 InetSocketAddress local = new InetSocketAddress(0);
                 newSocket.setSoTimeout(10000);
@@ -122,22 +119,20 @@ public class SSLProxyServer {
                 final IOException[] e = new IOException[1];
                 final InputStream rIn = in;
                 final OutputStream rNewOut = newOut;
-                Runnable r = new Runnable() {
-                    public void run() {
-                        try {
-                            byte[] buf = new byte[4096];
-                            int read = rIn.read(buf);
-                            while (read >= 0) {
-                                if (read > 0) {
-                                    rNewOut.write(buf, 0, read);
-                                    rNewOut.flush();
-                                }
-                                read = rIn.read(buf);
+                Runnable r = () -> {
+                    try {
+                        byte[] buf = new byte[4096];
+                        int read = rIn.read(buf);
+                        while (read >= 0) {
+                            if (read > 0) {
+                                rNewOut.write(buf, 0, read);
+                                rNewOut.flush();
                             }
+                            read = rIn.read(buf);
                         }
-                        catch (IOException ioe) {
-                            e[0] = ioe;
-                        }
+                    }
+                    catch (IOException ioe) {
+                        e[0] = ioe;
                     }
                 };
                 new Thread(r).start();

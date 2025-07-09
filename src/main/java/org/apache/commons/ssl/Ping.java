@@ -182,14 +182,11 @@ public class Ping {
                     String read1 = readLine.next();
                     if (read1.startsWith("HTTP/1.1 200")) {
                         int avail = in.available();
-                        in.skip(avail);
-                        Thread.yield();
-                        avail = in.available();
-                        while (avail != 0) {
+                        do {
                             in.skip(avail);
                             Thread.yield();
                             avail = in.available();
-                        }
+                        } while (avail != 0);
                         s = ssl.createSocket(s, targetHost, targetPort, true);
                     } else {
                         System.out.print(line1);

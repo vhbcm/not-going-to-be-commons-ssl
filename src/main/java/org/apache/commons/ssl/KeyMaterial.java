@@ -277,7 +277,7 @@ public class KeyMaterial extends TrustMaterial {
                     try {
                         buf.append(Certificates.toPEMString(cert));
                     } catch (CertificateEncodingException cee) {
-                        buf.append(cee.toString());
+                        buf.append(cee);
                         buf.append('\n');
                     }
                 }

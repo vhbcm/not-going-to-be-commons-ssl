@@ -80,7 +80,7 @@ public class IPAddressParser {
      */
     public static byte[] parseIPv6Literal(String s) {
         s = s != null ? s.trim() : "";
-        if (s.length() > 0 && s.charAt(0) == '[' && s.charAt(s.length() - 1) == ']') {
+        if (!s.isEmpty() && s.charAt(0) == '[' && s.charAt(s.length() - 1) == ']') {
             s = s.substring(1, s.length() - 1).trim();
         }
         int x = s.lastIndexOf(':');

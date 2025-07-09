@@ -42,5 +42,5 @@ import java.util.Date;
  * @since 22-Feb-2007
  */
 public interface RemoteDate extends Remote {
-    public Date getDate() throws RemoteException;
+    Date getDate() throws RemoteException;
 }

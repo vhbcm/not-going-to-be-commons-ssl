@@ -78,7 +78,7 @@ public class Base64 {
     /**
      * This array is a lookup table that translates 6-bit positive integer index values into their "Base64 Alphabet"
      * equivalents as specified in Table 1 of RFC 2045.
-     *
+     * <p>
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      */
@@ -112,10 +112,10 @@ public class Base64 {
      * This array is a lookup table that translates Unicode characters drawn from the "Base64 Alphabet" (as specified in
      * Table 1 of RFC 2045) into their 6-bit positive integer equivalents. Characters that are not in the Base64
      * alphabet but fall within the bounds of the array are translated to -1.
-     *
+     * <p>
      * Note: '+' and '-' both decode to 62. '/' and '_' both decode to 63. This means decoder seamlessly handles both
      * URL_SAFE and STANDARD base64. (The encoder, on the other hand, needs to know ahead of time what to emit).
-     *
+     * <p>
      * Thanks to "commons" project in ws.apache.org for this code.
      * http://svn.apache.org/repos/asf/webservices/commons/trunk/modules/util/
      */
@@ -730,7 +730,7 @@ public class Base64 {
         if (pArray == null || pArray.length == 0) {
             return pArray;
         }
-        long len = (pArray.length * 3) / 4;
+        long len = (pArray.length * 3L) / 4;
         byte[] buf = new byte[(int) len];
         setInitialBuffer(buf, 0, buf.length);
         decode(pArray, 0, pArray.length);
@@ -845,7 +845,7 @@ public class Base64 {
      * @deprecated This method is no longer needed
      */
     static byte[] discardWhitespace(byte[] data) {
-        byte groomedData[] = new byte[data.length];
+        byte[] groomedData = new byte[data.length];
         int bytesCopied = 0;
         for (final byte datum : data) {
             switch (datum) {
@@ -858,7 +858,7 @@ public class Base64 {
                     groomedData[bytesCopied++] = datum;
             }
         }
-        byte packedData[] = new byte[bytesCopied];
+        byte[] packedData = new byte[bytesCopied];
         System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
         return packedData;
     }
@@ -957,7 +957,7 @@ public class Base64 {
         // base64 always encodes to multiples of 4.
         chunkSize = (chunkSize / 4) * 4;
 
-        long len = (pArray.length * 4) / 3;
+        long len = (pArray.length * 4L) / 3;
         long mod = len % 4;
         if (mod != 0) {
             len += 4 - mod;

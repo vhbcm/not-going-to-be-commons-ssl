@@ -67,7 +67,7 @@ public class Certificates {
     private static final Log logger = LogFactory.getLog(Certificates.class);
 
     public final static CertificateFactory CF;
-    public final static String LINE_ENDING = System.getProperty("line.separator");
+    public final static String LINE_ENDING = System.lineSeparator();
 
     private final static HashMap<String, CRLHolder> crl_cache = new HashMap<>();
 
@@ -478,13 +478,12 @@ public class Certificates {
                         if (value != null) {
                             cnList.add(value.toString());
                         }
-                    } catch (NoSuchElementException ignore) {
-                    } catch (NamingException ignore) {
+                    } catch (NoSuchElementException | NamingException ignore) {
                     }
                 }
             }
             if (!cnList.isEmpty()) {
-                return cnList.toArray(new String[cnList.size()]);
+                return cnList.toArray(new String[0]);
             }
         } catch (InvalidNameException ignore) {
         }

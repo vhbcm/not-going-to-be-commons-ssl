@@ -75,10 +75,10 @@ class ASN1Structure {
             buf.append("[null]");
         }
         buf.append("\nic:      ");
-        buf.append(Integer.toString(iterationCount));
+        buf.append(iterationCount);
         if (keySize != 0) {
             buf.append("\nkeySize: ");
-            buf.append(Integer.toString(keySize * 8));
+            buf.append(keySize * 8);
         }
         if (oid2 != null) {
             buf.append("\noid3:    ");

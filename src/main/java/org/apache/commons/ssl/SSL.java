@@ -75,10 +75,9 @@ public class SSL {
         // reads of "/dev/random" (Linux only?).  You might find you system
         // stuck here.  Move the mouse around a little!
         SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        ts = new TreeSet<>();
         SUPPORTED_CIPHERS = s.getSupportedCipherSuites();
         Arrays.sort(SUPPORTED_CIPHERS);
-        ts.addAll(Arrays.asList(SUPPORTED_CIPHERS));
+        ts = new TreeSet<>(Arrays.asList(SUPPORTED_CIPHERS));
         SUPPORTED_CIPHERS_SET = Collections.unmodifiableSortedSet(ts);
     }
 
@@ -195,7 +194,7 @@ public class SSL {
     String dnsOverride(String host) {
         if (dnsOverride != null && dnsOverride.containsKey(host)) {
             String override = dnsOverride.get(host);
-            if (override != null && !"".equals(override.trim())) {
+            if (override != null && !override.trim().isEmpty()) {
                 return override;
             }
         }
@@ -404,11 +403,8 @@ public class SSL {
         try {
             init();
         }
-        catch (GeneralSecurityException gse) {
+        catch (GeneralSecurityException | IOException gse) {
             throw JavaImpl.newRuntimeException(gse);
-        }
-        catch (IOException ioe) {
-            throw JavaImpl.newRuntimeException(ioe);
         }
     }
 

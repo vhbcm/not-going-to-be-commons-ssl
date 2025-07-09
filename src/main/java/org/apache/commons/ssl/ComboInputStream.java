@@ -79,7 +79,7 @@ public class ComboInputStream extends InputStream {
         }
     }
 
-    public int read(byte b[], int off, int len) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         int c;
         if (headDone) {
             c = tail.read(b, off, len);
