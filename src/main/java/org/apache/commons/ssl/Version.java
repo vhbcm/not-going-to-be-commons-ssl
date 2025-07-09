@@ -70,9 +70,9 @@ public class Version {
             }
             v = v.replace('_', '.');
             v = v.replace('-', '.');
-        } else if (HEAD_URL.indexOf("/trunk/") >= 0) {
+        } else if (HEAD_URL.contains("/trunk/")) {
             v = "trunk";
-        } else if (HEAD_URL.indexOf("/branches/") >= 0) {
+        } else if (HEAD_URL.contains("/branches/")) {
             fromBranch = true;
             x = HEAD_URL.indexOf("/branches/");
             int y = HEAD_URL.indexOf("/", x + "/branches/".length());

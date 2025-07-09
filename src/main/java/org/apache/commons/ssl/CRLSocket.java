@@ -92,7 +92,7 @@ public class CRLSocket extends SSLClient {
             byte b = (byte) c;
             buf.append((char) b);
             System.out.print((char) b);
-            if (-1 == buf.toString().indexOf("\r\n\r\n")) {
+            if (!buf.toString().contains("\r\n\r\n")) {
                 c = in.read();
             } else {
                 break;

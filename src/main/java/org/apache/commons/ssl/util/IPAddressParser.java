@@ -104,7 +104,7 @@ public class IPAddressParser {
 
         // This array helps us expand the "::" into the zeroes it represents.
         String[] raw = new String[]{"0000", "0000", "0000", "0000", "0000", "0000", "0000", "0000"};
-        if (s.indexOf("::") >= 0) {
+        if (s.contains("::")) {
             String[] split = s.split("::", -1);
             String[] prefix = splitOnColon(split[0]);
             String[] suffix = splitOnColon(split[1]);
