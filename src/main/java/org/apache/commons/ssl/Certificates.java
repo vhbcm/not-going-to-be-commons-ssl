@@ -403,8 +403,8 @@ public class Certificates {
                             Class c = httpConn.getClass();
                             Method setConnTimeOut = c.getDeclaredMethod("setConnectTimeout", new Class[]{Integer.TYPE});
                             Method setReadTimeout = c.getDeclaredMethod("setReadTimeout", new Class[]{Integer.TYPE});
-                            setConnTimeOut.invoke(httpConn, Integer.valueOf(5000));
-                            setReadTimeout.invoke(httpConn, Integer.valueOf(5000));
+                            setConnTimeOut.invoke(httpConn, 5000);
+                            setReadTimeout.invoke(httpConn, 5000);
                         } catch (NoSuchMethodException nsme) {
                             // oh well, java 1.4 users can suffer.
                         } catch (Exception e) {
@@ -524,7 +524,7 @@ public class Certificates {
             Iterator it = c.iterator();
             while (it.hasNext()) {
                 List list = (List) it.next();
-                int type = ((Integer) list.get(0)).intValue();
+                int type = (Integer) list.get(0);
                 // If type is 2, then we've got a dNSName
                 if (type == 2) {
                     String s = (String) list.get(1);

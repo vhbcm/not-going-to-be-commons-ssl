@@ -373,7 +373,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
         if (port == 0) {
             port = anonymousPort;
         }
-        Integer key = new Integer(port);
+        Integer key = port;
         ServerSocket ss = (ServerSocket) serverSockets.get(key);
         if (ss == null || ss.isClosed()) {
             if (ss != null && ss.isClosed()) {
