@@ -31,21 +31,21 @@
 
 package org.apache.commons.ssl;
 
-import org.apache.commons.ssl.util.ReadLine;
-
-import javax.net.ssl.SSLSocket;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.net.ssl.SSLSocket;
+import org.apache.commons.ssl.util.ReadLine;
 
 /**
  * @author Credit Union Central of British Columbia
@@ -54,8 +54,8 @@ import java.util.TreeSet;
  * @since 30-Mar-2006
  */
 public class Ping {
-    protected static SortedSet ARGS = new TreeSet();
-    protected static Map ARGS_MATCH = new HashMap();
+    protected static SortedSet<Arg> ARGS = new TreeSet<>();
+    protected static Map<String, Arg> ARGS_MATCH = new HashMap<>();
     protected final static Arg ARG_TARGET = new Arg("-t", "--target", "[hostname[:port]]              default port=443", true);
     protected final static Arg ARG_BIND = new Arg("-b", "--bind", "[hostname[:port]]              default port=0 \"ANY\"");
     protected final static Arg ARG_PROXY = new Arg("-r", "--proxy", "[hostname[:port]]              default port=80");
@@ -109,9 +109,7 @@ public class Ping {
             System.out.println("Usage:  java -jar not-yet-commons-ssl-" + Version.VERSION + ".jar [options]");
             System.out.println(Version.versionString());
             System.out.println("Options:   (*=required)");
-            Iterator it = ARGS.iterator();
-            while (it.hasNext()) {
-                Arg a = (Arg) it.next();
+            for (final Arg a : ARGS) {
                 String s = Util.pad(a.shortArg, 3, false);
                 String l = Util.pad(a.longArg, 18, false);
                 String required = a.isRequired ? "*" : " ";
@@ -153,9 +151,7 @@ public class Ping {
                         km = new KeyMaterial(clientCert, password);
                     }
                     if (password != null) {
-                        for (int i = 0; i < password.length; i++) {
-                            password[i] = 0;
-                        }
+                        Arrays.fill(password, (char) 0);
                     }
                     ssl.setKeyMaterial(km);
                 }
@@ -385,7 +381,7 @@ public class Ping {
     }
 
 
-    public static class Arg implements Comparable {
+    public static class Arg implements Comparable<Arg> {
         public final String shortArg;
         public final String longArg;
         public final String description;
@@ -411,8 +407,9 @@ public class Ping {
             }
         }
 
-        public int compareTo(Object o) {
-            return id - ((Arg) o).id;
+        @Override
+        public int compareTo(Arg o) {
+            return id - o.id;
         }
 
         public String toString() {
@@ -421,12 +418,10 @@ public class Ping {
     }
 
     private static void parseArgs(String[] cargs) throws Exception {
-        Map args = Util.parseArgs(cargs);
-        Iterator it = args.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            Arg arg = (Arg) entry.getKey();
-            String[] values = (String[]) entry.getValue();
+        Map<Arg, String[]> args = Util.parseArgs(cargs);
+        for (final Entry<Arg, String[]> argEntry : args.entrySet()) {
+            Arg arg = argEntry.getKey();
+            String[] values = argEntry.getValue();
             if (arg == ARG_TARGET) {
                 target = Util.toAddress(values[0], 443);
                 targetAddress = target.addr;
@@ -463,9 +458,7 @@ public class Ping {
             }
         }
         args.clear();
-        for (int i = 0; i < cargs.length; i++) {
-            cargs[i] = null;
-        }
+        Arrays.fill(cargs, null);
 
         if (targetAddress == null) {
             throw new IllegalArgumentException("\"" + ARG_TARGET + "\" is mandatory");

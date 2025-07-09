@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
@@ -29,11 +28,9 @@ public class PBETestCreate {
             throw new IOException(dir.getCanonicalPath() + " doesn't exist!");
         }
 
-        TreeSet ciphers = new TreeSet();
-        Iterator it = p.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
-            String key = (String) entry.getKey();
+        TreeSet<String> ciphers = new TreeSet<>();
+        for (Map.Entry<Object, Object> objectObjectEntry : p.entrySet()) {
+            String key = (String) objectObjectEntry.getKey();
             if (!"target".equalsIgnoreCase(key)) {
                 ciphers.add(key);
                 ciphers.add(key + "-cbc");
@@ -47,9 +44,7 @@ public class PBETestCreate {
 
         byte[] toEncrypt = "Hello World!".getBytes(StandardCharsets.UTF_8);
         char[] pwd = "changeit".toCharArray();
-        it = ciphers.iterator();
-        while (it.hasNext()) {
-            String cipher = (String) it.next();
+        for (String cipher : ciphers) {
             String cipherPadded = Util.pad(cipher, 15, false);
             String fileNameBase64 = cipher + ".base64";
             String fileNameRaw = cipher + ".raw";

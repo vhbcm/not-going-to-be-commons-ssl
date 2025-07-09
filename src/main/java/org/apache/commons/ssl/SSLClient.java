@@ -79,7 +79,7 @@ public class SSLClient extends SSLSocketFactory {
 
     public void setIsSecure(boolean b) { ssl.setIsSecure(b); }
 
-    public void setDnsOverride(Map m) { ssl.setDnsOverride(m); }    
+    public void setDnsOverride(Map<String, String> m) { ssl.setDnsOverride(m); }
 
     public void setCheckCRL(boolean b) { ssl.setCheckCRL(b); }
 

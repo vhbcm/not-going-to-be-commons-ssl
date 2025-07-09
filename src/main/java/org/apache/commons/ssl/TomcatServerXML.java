@@ -84,7 +84,7 @@ public class TomcatServerXML {
      * new Integer( port ) --> KeyMaterial mapping of SSL Certificates found
      * inside Tomcat's conf/server.xml file.
      */
-    public final static SortedMap KEY_MATERIAL_BY_PORT;
+    public final static SortedMap<Integer, KeyMaterial> KEY_MATERIAL_BY_PORT;
 
     /**
      * new Integer( port ) --> TrustMaterial mapping of SSL configuration
@@ -97,13 +97,13 @@ public class TomcatServerXML {
      * incoming client socket (SSLSocket) presents a client certificate.
      * </p>
      */
-    public final static SortedMap TRUST_MATERIAL_BY_PORT;
+    public final static SortedMap<Integer, TrustMaterial> TRUST_MATERIAL_BY_PORT;
 
     static {
         String tomcatHome = System.getProperty("catalina.home");
         String serverXML = tomcatHome + "/conf/server.xml";
-        TreeMap keyMap = new TreeMap();
-        TreeMap trustMap = new TreeMap();
+        TreeMap<Integer, KeyMaterial> keyMap = new TreeMap<>();
+        TreeMap<Integer, TrustMaterial> trustMap = new TreeMap<>();
         InputStream in = null;
         Document doc = null;
         try {
@@ -144,17 +144,17 @@ public class TomcatServerXML {
         KeyMaterial km = null;
         TrustMaterial tm = null;
         if (!keyMap.isEmpty()) {
-            km = (KeyMaterial) keyMap.get(keyMap.firstKey());
+            km = keyMap.get(keyMap.firstKey());
         }
         if (!trustMap.isEmpty()) {
-            tm = (TrustMaterial) trustMap.get(trustMap.firstKey());
+            tm = trustMap.get(trustMap.firstKey());
         }
         KEY_MATERIAL = km;
         TRUST_MATERIAL = tm;
 
     }
 
-    private static void loadTomcatConfig(Document d, Map keyMap, Map trustMap) {
+    private static void loadTomcatConfig(Document d, Map<Integer, KeyMaterial> keyMap, Map<Integer, TrustMaterial> trustMap) {
         final String userHome = System.getProperty("user.home");
         NodeList nl = d.getElementsByTagName("Connector");
         for (int i = 0; i < nl.getLength(); i++) {
@@ -168,7 +168,7 @@ public class TomcatServerXML {
             String pass;
             try {
                 portString = portString != null ? portString.trim() : "";
-                port = new Integer(portString);
+                port = Integer.valueOf(portString);
             }
             catch (NumberFormatException nfe) {
                 // oh well

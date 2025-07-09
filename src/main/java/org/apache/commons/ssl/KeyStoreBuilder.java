@@ -151,8 +151,8 @@ public class KeyStoreBuilder {
             }
         }
 
-        List keys = br1.keys;
-        List chains = br1.chains;
+        List<Key> keys = br1.keys;
+        List<Certificate[]> chains = br1.chains;
         boolean atLeastOneNotSet = keys == null || chains == null || keys.isEmpty() || chains.isEmpty();
         if (atLeastOneNotSet && br2 != null) {
             if (br2.keys != null && !br2.keys.isEmpty()) {
@@ -178,12 +178,12 @@ public class KeyStoreBuilder {
         } else {
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, jksPassword);
-            Iterator keysIt = keys.iterator();
-            Iterator chainsIt = chains.iterator();
+            Iterator<Key> keysIt = keys.iterator();
+            Iterator<Certificate[]> chainsIt = chains.iterator();
             int i = 1;
             while (keysIt.hasNext() && chainsIt.hasNext()) {
-                Key key = (Key) keysIt.next();
-                Certificate[] c = (Certificate[]) chainsIt.next();
+                Key key = keysIt.next();
+                Certificate[] c = chainsIt.next();
                 X509Certificate theOne = buildChain(key, c);
                 String alias = "alias_" + i++;
                 // The theOne is not null, then our chain was probably altered.
@@ -249,14 +249,14 @@ public class KeyStoreBuilder {
         throws CertificateException, KeyStoreException,
         NoSuchAlgorithmException, InvalidKeyException,
         NoSuchProviderException, UnrecoverableKeyException {
-        Enumeration en = jks.aliases();
+        Enumeration<String> en = jks.aliases();
         boolean atLeastOneSuccess = false;
         boolean atLeastOneFailure = false;
 
-        List keys = new LinkedList();
-        List chains = new LinkedList();
+        List<PrivateKey> keys = new LinkedList<>();
+        List<Certificate[]> chains = new LinkedList<>();
         while (en.hasMoreElements()) {
-            String alias = (String) en.nextElement();
+            String alias = en.nextElement();
             if (jks.isKeyEntry(alias)) {
                 try {
                     PrivateKey key = (PrivateKey) jks.getKey(alias, keyPass);
@@ -296,22 +296,20 @@ public class KeyStoreBuilder {
     }
 
     public static class BuildResult {
-        protected final List keys;
-        protected final List chains;
+        protected final List<Key> keys;
+        protected final List<Certificate[]> chains;
         protected final KeyStore jks;
 
-        protected BuildResult(List keys, List chains, KeyStore jks) {
+        protected BuildResult(List<? extends Key> keys, List<Certificate[]> chains, KeyStore jks) {
             if (keys == null || keys.isEmpty()) {
                 this.keys = null;
             } else {
                 this.keys = Collections.unmodifiableList(keys);
             }
             this.jks = jks;
-            List x509Chains = new LinkedList();
+            List<X509Certificate[]> x509Chains = new LinkedList<>();
             if (chains != null) {
-                Iterator it = chains.iterator();
-                while (it.hasNext()) {
-                    Certificate[] chain = (Certificate[]) it.next();
+                for (final Certificate[] chain : chains) {
                     if (chain != null && chain.length > 0) {
                         int len = chain.length;
                         X509Certificate[] x509 = new X509Certificate[len];
@@ -344,7 +342,7 @@ public class KeyStoreBuilder {
         throws IOException, CertificateException, KeyStoreException,
         ProbablyBadPasswordException {
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        Key key = null;
+        PrivateKey key = null;
         Certificate[] chain = null;
         try {
             PKCS8Key pkcs8Key = new PKCS8Key(stuff, jksPass);
@@ -357,11 +355,11 @@ public class KeyStoreBuilder {
             // no luck
         }
 
-        List pemItems = PEMUtil.decode(stuff);
-        Iterator it = pemItems.iterator();
-        LinkedList certificates = new LinkedList();
+        List<PEMItem> pemItems = PEMUtil.decode(stuff);
+        Iterator<PEMItem> it = pemItems.iterator();
+        LinkedList<X509Certificate> certificates = new LinkedList<>();
         while (it.hasNext()) {
-            PEMItem item = (PEMItem) it.next();
+            PEMItem item = it.next();
             byte[] derBytes = item.getDerBytes();
             String type = item.pemType.trim().toUpperCase();
             if (type.startsWith("CERT") ||
@@ -375,8 +373,8 @@ public class KeyStoreBuilder {
         }
 
         if (chain != null || key != null) {
-            List chains = chain != null ? Collections.singletonList(chain) : null;
-            List keys = key != null ? Collections.singletonList(key) : null;
+            List<Certificate[]> chains = chain != null ? Collections.singletonList(chain) : null;
+            List<PrivateKey> keys = key != null ? Collections.singletonList(key) : null;
             return new BuildResult(keys, chains, null);
         }
 
@@ -424,16 +422,15 @@ public class KeyStoreBuilder {
             stuffStream.reset();
 
             try {
-                certificates = new LinkedList();
-                Collection certs = cf.generateCertificates(stuffStream);
-                it = certs.iterator();
-                while (it.hasNext()) {
-                    X509Certificate x509 = (X509Certificate) it.next();
+                certificates = new LinkedList<>();
+                Collection<? extends Certificate> certs = cf.generateCertificates(stuffStream);
+                for (final Certificate cert : certs) {
+                    X509Certificate x509 = (X509Certificate) cert;
                     certificates.add(x509);
                 }
                 chain = toChain(certificates);
                 if (chain != null && chain.length > 0) {
-                    List chains = Collections.singletonList(chain);
+                    List<Certificate[]> chains = Collections.singletonList(chain);
                     return new BuildResult(null, chains, null);
                 }
             }
@@ -450,7 +447,7 @@ public class KeyStoreBuilder {
                 X509Certificate x509 = (X509Certificate) c;
                 chain = toChain(Collections.singleton(x509));
                 if (chain != null && chain.length > 0) {
-                    List chains = Collections.singletonList(chain);
+                    List<Certificate[]> chains = Collections.singletonList(chain);
                     return new BuildResult(null, chains, null);
                 }
             }
@@ -492,9 +489,9 @@ public class KeyStoreBuilder {
             UnrecoverableKeyException uke = null;
             KeyStore jksKeyStore = KeyStore.getInstance(keystoreType);
             jksKeyStore.load(in, jksPassword);
-            Enumeration en = jksKeyStore.aliases();
+            Enumeration<String> en = jksKeyStore.aliases();
             while (en.hasMoreElements()) {
-                String alias = (String) en.nextElement();
+                String alias = en.nextElement();
                 if (jksKeyStore.isKeyEntry(alias)) {
                     try {
                         if (keyPassword != null) {
@@ -534,8 +531,8 @@ public class KeyStoreBuilder {
                 }
             }
 
-            List keys = Collections.singletonList(key);
-            List chains = Collections.singletonList(chain);
+            List<Key> keys = Collections.singletonList(key);
+            List<Certificate[]> chains = Collections.singletonList(chain);
             return new BuildResult(keys, chains, jksKeyStore);
         }
         catch (ProbablyBadPasswordException pbpe) {
@@ -566,7 +563,7 @@ public class KeyStoreBuilder {
         }
     }
 
-    private static X509Certificate[] toChain(Collection certs) {
+    private static X509Certificate[] toChain(Collection<X509Certificate> certs) {
         if (certs != null && !certs.isEmpty()) {
             X509Certificate[] x509Chain = new X509Certificate[certs.size()];
             certs.toArray(x509Chain);
@@ -610,7 +607,7 @@ public class KeyStoreBuilder {
         }
 
         KeyStore ks = build(bytes1, bytes2, password);
-        Enumeration en = ks.aliases();
+        Enumeration<String> en = ks.aliases();
         String alias = "keystorebuilder";
 
         // We're going to assume that the biggest key is the one we want
@@ -619,7 +616,7 @@ public class KeyStoreBuilder {
         // key in the KeyStore).
         int biggestKey = 0;
         while (en.hasMoreElements()) {
-            String s = (String) en.nextElement();
+            String s = en.nextElement();
             try {
                 PrivateKey pk = (PrivateKey) ks.getKey(s, password);
                 byte[] encoded = pk.getEncoded();
@@ -639,7 +636,7 @@ public class KeyStoreBuilder {
         if (chain != null && chain[0] != null) {
             String cn = Certificates.getCN((X509Certificate) chain[0]);
             cn = cn != null ? cn.trim() : "";
-            if (!"".equals(cn)) {
+            if (!cn.isEmpty()) {
                 fileName = cn;
             }
         }
@@ -653,7 +650,7 @@ public class KeyStoreBuilder {
 
         FileOutputStream fout = new FileOutputStream(f);
         if (toPKCS8) {
-            List pemItems = new LinkedList();
+            List<PEMItem> pemItems = new LinkedList<>();
             PrivateKey key = (PrivateKey) ks.getKey(alias, password);
             chain = ks.getCertificateChain(alias);
             byte[] pkcs8DerBytes = null;

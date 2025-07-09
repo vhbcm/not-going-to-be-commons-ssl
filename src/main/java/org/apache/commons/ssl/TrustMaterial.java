@@ -57,6 +57,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -172,7 +173,7 @@ public class TrustMaterial extends TrustChain {
         this.simpleTrustType = simpleTrustType;
     }
 
-    public TrustMaterial(Collection x509Certs)
+    public TrustMaterial(Collection<X509Certificate> x509Certs)
         throws GeneralSecurityException, IOException {
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         ks.load(null, null);
@@ -252,10 +253,10 @@ public class TrustMaterial extends TrustChain {
             // Otherwise we need to build a keystore from what we were given.
             KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
             if (br.chains != null && !br.chains.isEmpty()) {
-                Certificate[] c = (Certificate[]) br.chains.get(0);
+                Certificate[] c = br.chains.get(0);
                 if (c.length > 0) {
                     ks.load(null, password);
-                    loadCerts(ks, Arrays.asList(c));
+                    loadCerts(ks, Arrays.stream(c).map(X509Certificate.class::cast).collect(Collectors.toList()));
                 }
             }
             this.jks = ks;
@@ -265,9 +266,9 @@ public class TrustMaterial extends TrustChain {
         // certificate entry:
         KeyStore ks = this.jks;
         boolean hasCertificates = false;
-        Enumeration en = ks.aliases();
+        Enumeration<String> en = ks.aliases();
         while (en.hasMoreElements()) {
-            String alias = (String) en.nextElement();
+            String alias = en.nextElement();
             if (ks.isCertificateEntry(alias)) {
                 hasCertificates = true;
                 break;
@@ -288,12 +289,12 @@ public class TrustMaterial extends TrustChain {
         return jks;
     }
 
-    private static void loadCerts(KeyStore ks, Collection certs)
+    private static void loadCerts(KeyStore ks, Collection<X509Certificate> certs)
         throws KeyStoreException {
-        Iterator it = certs.iterator();
+        Iterator<X509Certificate> it = certs.iterator();
         int count = 0;
         while (it.hasNext()) {
-            X509Certificate cert = (X509Certificate) it.next();
+            X509Certificate cert = it.next();
 
             // I could be fancy and parse out the CN field from the
             // certificate's subject, but these names don't actually matter
@@ -305,6 +306,7 @@ public class TrustMaterial extends TrustChain {
         }
     }
 
+    @Override
     protected boolean containsTrustAll() {
         boolean yes = this.simpleTrustType == SIMPLE_TRUST_TYPE_TRUST_ALL;
         if ( !yes ) {

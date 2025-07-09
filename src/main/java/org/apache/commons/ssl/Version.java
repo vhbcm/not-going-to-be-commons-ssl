@@ -130,7 +130,7 @@ public class Version {
         private final static String DF_FORMAT = "zzz:yyyy-MM-dd/HH:mm:ss.SSS";
         private final static DateFormat DF = new SimpleDateFormat(DF_FORMAT);
 
-        public static String getCompileTimeString(Class clazz) {
+        public static String getCompileTimeString(Class<?> clazz) {
             String s = clazz.getName();
             s = "/" + s.replace('.', '/') + ".class";
             return getCompileTimeString(s);
@@ -160,9 +160,9 @@ public class Version {
                     }
                     JarFile jf = new JarFile(fileLocation);
                     long newestTime = 0;
-                    Enumeration entries = jf.entries();
+                    Enumeration<JarEntry> entries = jf.entries();
                     while (entries.hasMoreElements()) {
-                        JarEntry entry = (JarEntry) entries.nextElement();
+                        JarEntry entry = entries.nextElement();
                         if (entry.getName().endsWith(".class")) {
                             newestTime = Math.max(newestTime, entry.getTime());
                         }

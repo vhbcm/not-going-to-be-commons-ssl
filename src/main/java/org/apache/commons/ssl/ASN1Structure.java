@@ -32,6 +32,7 @@
 package org.apache.commons.ssl;
 
 import org.apache.commons.ssl.util.Hex;
+import org.bouncycastle.asn1.ASN1Integer;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -46,8 +47,8 @@ import java.util.TreeSet;
  * @since 16-Nov-2005
  */
 class ASN1Structure {
-    List derIntegers = new LinkedList();
-    Set oids = new TreeSet();
+    List<ASN1Integer> derIntegers = new LinkedList<>();
+    Set<String> oids = new TreeSet<>();
     String oid1;
     String oid2;
     String oid3;
@@ -100,11 +101,11 @@ class ASN1Structure {
             buf.append(smallPayload.length);
         }
         if (!oids.isEmpty()) {
-            Iterator it = oids.iterator();
+            Iterator<String> it = oids.iterator();
             buf.append("\nAll oids:");
             while (it.hasNext()) {
                 buf.append("\n");
-                buf.append((String) it.next());
+                buf.append(it.next());
             }
         }
         return buf.toString();

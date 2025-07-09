@@ -69,20 +69,17 @@ public class Certificates {
     public final static CertificateFactory CF;
     public final static String LINE_ENDING = System.getProperty("line.separator");
 
-    private final static HashMap crl_cache = new HashMap();
+    private final static HashMap<String, CRLHolder> crl_cache = new HashMap<>();
 
     public final static String CRL_EXTENSION = "2.5.29.31";
     public final static String OCSP_EXTENSION = "1.3.6.1.5.5.7.1.1";
     private final static DateFormat DF = new SimpleDateFormat("yyyy/MMM/dd");
 
-    public interface SerializableComparator extends Comparator, Serializable {
+    public interface SerializableComparator<T> extends Comparator<T>, Serializable {
     }
 
-    public final static SerializableComparator COMPARE_BY_EXPIRY =
-        new SerializableComparator() {
-            public int compare(Object o1, Object o2) {
-                X509Certificate c1 = (X509Certificate) o1;
-                X509Certificate c2 = (X509Certificate) o2;
+    public final static SerializableComparator<X509Certificate> COMPARE_BY_EXPIRY =
+            (c1, c2) -> {
                 if (c1 == c2) // this deals with case where both are null
                 {
                     return 0;
@@ -139,8 +136,7 @@ public class Certificates {
                     }
                 }
                 return c;
-            }
-        };
+            };
 
     static {
         CertificateFactory cf = null;
@@ -187,7 +183,7 @@ public class Certificates {
         String endDate = DF.format(cert.getNotAfter());
         String subject = JavaImpl.getSubjectX500(cert);
         String issuer = JavaImpl.getIssuerX500(cert);
-        Iterator crls = getCRLs(cert).iterator();
+        Iterator<String> crls = getCRLs(cert).iterator();
         if (subject.equals(issuer)) {
             issuer = "self-signed";
         }
@@ -213,13 +209,13 @@ public class Certificates {
         while (crls.hasNext()) {
             buf.append(LINE_ENDING);
             buf.append("CRL: ");
-            buf.append((String) crls.next());
+            buf.append(crls.next());
         }
         buf.append(LINE_ENDING);
         return buf.toString();
     }
 
-    public static List getCRLs(X509Extension cert) {
+    public static List<String> getCRLs(X509Extension cert) {
         // What follows is a poor man's CRL extractor, for those lacking
         // a BouncyCastle "bcprov.jar" in their classpath.
 
@@ -231,9 +227,9 @@ public class Certificates {
         // I happen to like some of the functions available to the String
         // object).    - juliusdavies@cucbc.com, May 10th, 2006
         byte[] bytes = cert.getExtensionValue(CRL_EXTENSION);
-        LinkedList httpCRLS = new LinkedList();
-        LinkedList ftpCRLS = new LinkedList();
-        LinkedList otherCRLS = new LinkedList();
+        LinkedList<String> httpCRLS = new LinkedList<>();
+        LinkedList<String> ftpCRLS = new LinkedList<>();
+        LinkedList<String> otherCRLS = new LinkedList<>();
         if (bytes == null) {
             // just return empty list
             return httpCRLS;
@@ -288,11 +284,9 @@ public class Certificates {
         if (bytes == null) {
             // log.warn( "Cert doesn't contain X509v3 CRL Distribution Points (2.5.29.31): " + name );
         } else {
-            List crlList = getCRLs(cert);
-            Iterator it = crlList.iterator();
-            while (it.hasNext()) {
-                String url = (String) it.next();
-                CRLHolder holder = (CRLHolder) crl_cache.get(url);
+            List<String> crlList = getCRLs(cert);
+            for (final String url : crlList) {
+                CRLHolder holder = crl_cache.get(url);
                 if (holder == null) {
                     holder = new CRLHolder(url);
                     crl_cache.put(url, holder);
@@ -334,8 +328,8 @@ public class Certificates {
 
         private File tempCRLFile;
         private long creationTime;
-        private Set passedTest = new HashSet();
-        private Set failedTest = new HashSet();
+        private Set<BigInteger> passedTest = new HashSet<>();
+        private Set<BigInteger> failedTest = new HashSet<>();
 
         CRLHolder(String urlString) {
             if (urlString == null) {
@@ -400,9 +394,9 @@ public class Certificates {
                         HttpURLConnection httpConn = (HttpURLConnection) urlConn;
                         try {
                             // Java 1.5 and up support these, so using reflection.  UGH!!!
-                            Class c = httpConn.getClass();
-                            Method setConnTimeOut = c.getDeclaredMethod("setConnectTimeout", new Class[]{Integer.TYPE});
-                            Method setReadTimeout = c.getDeclaredMethod("setReadTimeout", new Class[]{Integer.TYPE});
+                            Class<? extends HttpURLConnection> c = httpConn.getClass();
+                            Method setConnTimeOut = c.getDeclaredMethod("setConnectTimeout", Integer.TYPE);
+                            Method setReadTimeout = c.getDeclaredMethod("setReadTimeout", Integer.TYPE);
                             setConnTimeOut.invoke(httpConn, 5000);
                             setReadTimeout.invoke(httpConn, 5000);
                         } catch (NoSuchMethodException nsme) {
@@ -473,7 +467,7 @@ public class Certificates {
     public static String[] getCNs(X509Certificate cert) {
         try {
             final String subjectPrincipal = cert.getSubjectX500Principal().getName(X500Principal.RFC2253);
-            final LinkedList<String> cnList = new LinkedList<String>();
+            final LinkedList<String> cnList = new LinkedList<>();
             final LdapName subjectDN = new LdapName(subjectPrincipal);
             for (final Rdn rds : subjectDN.getRdns()) {
                 final Attributes attributes = rds.toAttributes();
@@ -512,8 +506,8 @@ public class Certificates {
      * @return Array of SubjectALT DNS names stored in the certificate.
      */
     public static String[] getDNSSubjectAlts(X509Certificate cert) {
-        LinkedList subjectAltList = new LinkedList();
-        Collection c = null;
+        LinkedList<String> subjectAltList = new LinkedList<>();
+        Collection<List<?>> c = null;
         try {
             c = cert.getSubjectAlternativeNames();
         }
@@ -521,9 +515,7 @@ public class Certificates {
             logger.debug ("could not parse certificate", cpe);
         }
         if (c != null) {
-            Iterator it = c.iterator();
-            while (it.hasNext()) {
-                List list = (List) it.next();
+            for (final List<?> list : c) {
                 int type = (Integer) list.get(0);
                 // If type is 2, then we've got a dNSName
                 if (type == 2) {
@@ -578,9 +570,7 @@ public class Certificates {
         for (final String arg : args) {
             FileInputStream in = new FileInputStream(arg);
             TrustMaterial tm = new TrustMaterial(in);
-            Iterator it = tm.getCertificates().iterator();
-            while (it.hasNext()) {
-                X509Certificate x509 = (X509Certificate) it.next();
+            for (final X509Certificate x509 : tm.getCertificates()) {
                 System.out.println(toString(x509));
             }
         }

@@ -348,13 +348,11 @@ public interface HostnameVerifier extends javax.net.ssl.HostnameVerifier {
             // STRICT implementations of the HostnameVerifier only use the
             // first CN provided.  All other CNs are ignored.
             // (Firefox, wget, curl, Sun Java 1.4, 5, 6 all work this way).
-            TreeSet names = new TreeSet();
+            TreeSet<String> names = new TreeSet<>();
             if (cns != null && cns.length > 0 && cns[0] != null) {
                 names.add(cns[0]);
                 if (ie6) {
-                    for (int i = 1; i < cns.length; i++) {
-                        names.add(cns[i]);
-                    }
+                    names.addAll(Arrays.asList(cns).subList(1, cns.length));
                 }
             }
             if (subjectAlts != null) {
@@ -374,9 +372,9 @@ public interface HostnameVerifier extends javax.net.ssl.HostnameVerifier {
 
             boolean match = false;
             out:
-            for (Iterator it = names.iterator(); it.hasNext();) {
+            for (Iterator<String> it = names.iterator(); it.hasNext();) {
                 // Don't trim the CN, though!
-                String cn = (String) it.next();
+                String cn = it.next();
                 cn = cn.toLowerCase();
                 // Store CN in StringBuffer in case we need to report an error.
                 buf.append(" <");

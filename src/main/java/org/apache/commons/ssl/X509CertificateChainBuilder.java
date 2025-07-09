@@ -88,7 +88,7 @@ public class X509CertificateChainBuilder {
         NoSuchProviderException, CertificateException {
         // Use a LinkedList, because we do lots of random it.remove() operations.
         return buildPath(startingPoint,
-            new LinkedList(Arrays.asList(certificates)));
+            new LinkedList<>(Arrays.asList(certificates)));
     }
 
     /**
@@ -119,10 +119,10 @@ public class X509CertificateChainBuilder {
      *          on encoding errors.
      */
     public static X509Certificate[] buildPath(X509Certificate startingPoint,
-                                              Collection certificates)
+                                              Collection<Certificate> certificates)
         throws NoSuchAlgorithmException, InvalidKeyException,
         NoSuchProviderException, CertificateException {
-        LinkedList path = new LinkedList();
+        LinkedList<X509Certificate> path = new LinkedList<>();
         path.add(startingPoint);
         boolean nodeAdded = true;
         // Keep looping until an iteration happens where we don't add any nodes
@@ -131,7 +131,7 @@ public class X509CertificateChainBuilder {
             // We'll start out by assuming nothing gets added.  If something
             // gets added, then nodeAdded will be changed to "true".
             nodeAdded = false;
-            X509Certificate top = (X509Certificate) path.getLast();
+            X509Certificate top = path.getLast();
             if (isSelfSigned(top)) {
                 // We're self-signed, so we're done!
                 break;
@@ -139,7 +139,7 @@ public class X509CertificateChainBuilder {
 
             // Not self-signed.  Let's see if we're signed by anyone in the
             // collection.
-            Iterator it = certificates.iterator();
+            Iterator<Certificate> it = certificates.iterator();
             while (it.hasNext()) {
                 X509Certificate x509 = (X509Certificate) it.next();
                 if (verify(top, x509.getPublicKey())) {
@@ -194,7 +194,7 @@ public class X509CertificateChainBuilder {
         FileInputStream f2 = new FileInputStream(args[1]);
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
         X509Certificate theOne = (X509Certificate) cf.generateCertificate(f1);
-        Collection c = cf.generateCertificates(f2);
+        Collection<Certificate> c = (Collection<Certificate>) cf.generateCertificates(f2);
 
         X509Certificate[] path = buildPath(theOne, c);
         for (final X509Certificate x509Certificate : path) {

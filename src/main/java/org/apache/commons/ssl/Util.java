@@ -31,6 +31,7 @@
 
 package org.apache.commons.ssl;
 
+import org.apache.commons.ssl.Ping.Arg;
 import org.apache.commons.ssl.util.ByteArrayReadLine;
 import org.apache.commons.ssl.util.IPAddressParser;
 
@@ -104,7 +105,7 @@ public class Util {
     }
 
     private static Set<String> aliases(KeyStore ks) throws KeyStoreException {
-        Set<String> aliases = new TreeSet<String>();
+        Set<String> aliases = new TreeSet<>();
         Enumeration<String> en = ks.aliases();
         while (en.hasMoreElements()) {
             aliases.add(en.nextElement());
@@ -322,20 +323,20 @@ public class Util {
         }
     }
 
-    public static Map parseArgs(final String[] cargs) {
-        Map args = new TreeMap();
-        Map ARGS_MATCH = Ping.ARGS_MATCH;
+    public static Map<Ping.Arg, String[]> parseArgs(final String[] cargs) {
+        Map<Ping.Arg, String[]> args = new TreeMap<>();
+        Map<String, Arg> ARGS_MATCH = Ping.ARGS_MATCH;
 
         int l = cargs.length;
         final String[] EMPTY_VALUES = {""};
         for (int i = 0; i < l; i++) {
             String k = cargs[i];
-            Ping.Arg a = (Ping.Arg) ARGS_MATCH.get(k);
+            Ping.Arg a = ARGS_MATCH.get(k);
             if (l > i + 1) {
                 String v = cargs[++i];
                 while (ARGS_MATCH.containsKey(v)) {
                     args.put(a, EMPTY_VALUES);
-                    a = (Ping.Arg) ARGS_MATCH.get(v);
+                    a = ARGS_MATCH.get(v);
                     v = "";
                     if (l > i + 1) {
                         v = cargs[++i];
@@ -345,7 +346,7 @@ public class Util {
                 values[0] = v;
                 args.put(a, values);
                 if (l > i + 1 && !ARGS_MATCH.containsKey(cargs[i + 1])) {
-                    LinkedList list = new LinkedList();
+                    LinkedList<String> list = new LinkedList<>();
                     list.add(v);
                     while (l > i + 1 && !ARGS_MATCH.containsKey(cargs[i + 1])) {
                         v = cargs[++i];

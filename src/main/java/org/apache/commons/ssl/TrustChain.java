@@ -52,9 +52,9 @@ import java.util.TreeSet;
  * @since 27-Feb-2006
  */
 public class TrustChain {
-    private final Set trustMaterial =
-        Collections.synchronizedSet(new HashSet());
-    private SortedSet x509Certificates = null;
+    private final Set<TrustMaterial> trustMaterial =
+        Collections.synchronizedSet(new HashSet<>());
+    private SortedSet<X509Certificate> x509Certificates = null;
     private KeyStore unifiedKeyStore = null;
 
     public TrustChain() {
@@ -70,15 +70,13 @@ public class TrustChain {
         }
 
         // First, extract all the X509Certificates from this TrustChain.
-        this.x509Certificates = new TreeSet(Certificates.COMPARE_BY_EXPIRY);
-        Iterator it = trustMaterial.iterator();
-        while (it.hasNext()) {
-            TrustMaterial tm = (TrustMaterial) it.next();
+        this.x509Certificates = new TreeSet<>(Certificates.COMPARE_BY_EXPIRY);
+        for (final TrustMaterial tm : trustMaterial) {
             KeyStore ks = tm.getKeyStore();
             if (ks != null) {
-                Enumeration en = ks.aliases();
+                Enumeration<String> en = ks.aliases();
                 while (en.hasMoreElements()) {
-                    String alias = (String) en.nextElement();
+                    String alias = en.nextElement();
                     if (ks.isCertificateEntry(alias)) {
                         X509Certificate cert;
                         cert = (X509Certificate) ks.getCertificate(alias);
@@ -92,12 +90,12 @@ public class TrustChain {
 
         // Now that the X509Certificates are extracted, create the unified
         // keystore.
-        it = x509Certificates.iterator();
+        Iterator<X509Certificate> it2 = x509Certificates.iterator();
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         ks.load(null, null);
         int count = 0;
-        while (it.hasNext()) {
-            X509Certificate cert = (X509Certificate) it.next();
+        while (it2.hasNext()) {
+            X509Certificate cert = it2.next();
             // The "count" should keep the aliases unique (is that important?)
             String alias = "commons-ssl-" + count;
             ks.setCertificateEntry(alias, cert);
@@ -110,7 +108,7 @@ public class TrustChain {
     public synchronized void addTrustMaterial(TrustChain tc) {
         this.x509Certificates = null;  // invalidate cache
         if (tc instanceof TrustMaterial) {
-            trustMaterial.add(tc);
+            trustMaterial.add((TrustMaterial) tc);
         }
         // If duplicates are added, the Set will remove them.
         trustMaterial.addAll(tc.trustMaterial);
@@ -167,7 +165,7 @@ public class TrustChain {
      * @throws NoSuchAlgorithmException serious problems
      * @throws CertificateException     serious problems
      */
-    public synchronized SortedSet getCertificates()
+    public synchronized SortedSet<X509Certificate> getCertificates()
         throws KeyStoreException, IOException, NoSuchAlgorithmException,
         CertificateException {
         if (x509Certificates == null) {
@@ -203,9 +201,7 @@ public class TrustChain {
     }
 
     protected boolean containsTrustAll() {
-        Iterator it = trustMaterial.iterator();
-        while (it.hasNext()) {
-            TrustChain tc = (TrustChain) it.next();
+        for (final TrustMaterial tc : trustMaterial) {
             if (tc == this) {
                 continue;
             }

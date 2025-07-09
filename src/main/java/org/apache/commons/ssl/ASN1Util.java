@@ -44,15 +44,18 @@ package org.apache.commons.ssl;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Vector;
+
 import org.apache.commons.ssl.util.Hex;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.ASN1OctetString;
+import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1Sequence;
 import org.bouncycastle.asn1.ASN1Set;
 import org.bouncycastle.asn1.ASN1TaggedObject;
@@ -74,20 +77,21 @@ public class ASN1Util {
 
     public static ASN1Structure analyze(byte[] asn1)
         throws IOException {
-        ASN1InputStream asn = new ASN1InputStream(asn1);
-        DLSequence seq = (DLSequence) asn.readObject();
-        ASN1Structure pkcs8 = new ASN1Structure();
-        ASN1Util.analyze(seq, pkcs8, 0);
-        return pkcs8;
+        try (ASN1InputStream asn = new ASN1InputStream(asn1)) {
+            DLSequence seq = (DLSequence) asn.readObject();
+            ASN1Structure pkcs8 = new ASN1Structure();
+            ASN1Util.analyze(seq, pkcs8, 0);
+            return pkcs8;
+        }
     }
 
     public static void main(String[] args) throws Exception {
         DEBUG = true;
         FileInputStream in = new FileInputStream(args[0]);
         byte[] bytes = Util.streamToBytes(in);
-        List list = PEMUtil.decode(bytes);
+        List<PEMItem> list = PEMUtil.decode(bytes);
         if (!list.isEmpty()) {
-            bytes = ((PEMItem) list.get(0)).getDerBytes();
+            bytes = list.get(0).getDerBytes();
         }
 
         ASN1Structure asn1 = analyze(bytes);
@@ -105,7 +109,7 @@ public class ASN1Util {
         if (depth >= 2) {
             pkcs8.derIntegers = null;
         }
-        Enumeration en;
+        Enumeration<?> en;
         if (seq instanceof DLSequence) {
             en = ((DLSequence) seq).getObjects();
         } else if (seq instanceof DERSet) {
@@ -113,7 +117,7 @@ public class ASN1Util {
         } else if (seq instanceof DERTaggedObject) {
             DERTaggedObject derTag = (DERTaggedObject) seq;
             tag = Integer.toString(derTag.getTagNo());
-            Vector v = new Vector();
+            List<ASN1Primitive> v = new ArrayList<>();
             // XXX This is the original getObject implementation of getObject() that has been removed.
             // XXX The code below tries to replace it.
             //
@@ -128,7 +132,7 @@ public class ASN1Util {
                 throw new IllegalStateException("Missing CONTEXT_SPECIFIC tag");
             }
             v.add(derTag.getBaseObject().toASN1Primitive());
-            en = v.elements();
+            en = Collections.enumeration(v);
         } else {
             throw new IllegalArgumentException("DEREncodable must be one of: DLSequence, DERSet, DERTaggedObject");
         }
@@ -138,13 +142,13 @@ public class ASN1Util {
                 !(obj instanceof ASN1Set) &&
                 !(obj instanceof ASN1TaggedObject)) {
                 String str = obj.toString();
-                String name = obj.getClass().getName();
-                name = name.substring(name.lastIndexOf('.') + 1);
+                StringBuilder name = new StringBuilder(obj.getClass().getName());
+                name = new StringBuilder(name.substring(name.toString().lastIndexOf('.') + 1));
                 if (tag != null) {
-                    name = " [tag=" + tag + "] " + name;
+                    name.insert(0, " [tag=" + tag + "] ");
                 }
                 for (int i = 0; i < depth; i++) {
-                    name = "  " + name;
+                    name.insert(0, "  ");
                 }
                 if (obj instanceof ASN1Integer) {
                     ASN1Integer dInt = (ASN1Integer) obj;

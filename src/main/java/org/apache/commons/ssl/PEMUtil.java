@@ -51,14 +51,12 @@ import java.util.*;
  * @since 13-Aug-2006
  */
 public class PEMUtil {
-    final static String LINE_SEPARATOR = System.getProperty("line.separator");
+    final static String LINE_SEPARATOR = System.lineSeparator();
 
-    public static byte[] encode(Collection items) throws IOException {
+    public static byte[] encode(Collection<PEMItem> items) throws IOException {
         final byte[] LINE_SEPARATOR_BYTES = LINE_SEPARATOR.getBytes(StandardCharsets.UTF_8);
         ByteArrayOutputStream out = new ByteArrayOutputStream(8192);
-        Iterator it = items.iterator();
-        while (it.hasNext()) {
-            PEMItem item = (PEMItem) it.next();
+        for (final PEMItem item : items) {
             out.write("-----BEGIN ".getBytes(StandardCharsets.UTF_8));
             out.write(item.pemType.getBytes(StandardCharsets.UTF_8));
             out.write("-----".getBytes(StandardCharsets.UTF_8));
@@ -86,16 +84,16 @@ public class PEMUtil {
         return out.toByteArray();
     }
 
-    public static List decode(byte[] pemBytes) {
-        LinkedList pemItems = new LinkedList();
+    public static List<PEMItem> decode(byte[] pemBytes) {
+        LinkedList<PEMItem> pemItems = new LinkedList<>();
         ByteArrayInputStream in = new ByteArrayInputStream(pemBytes);
         ByteArrayReadLine readLine = new ByteArrayReadLine(in);
         String line = readLine.next();
         while (line != null) {
             int len = 0;
             byte[] decoded;
-            ArrayList listOfByteArrays = new ArrayList(64);
-            Map properties = new HashMap();
+            ArrayList<byte[]> listOfByteArrays = new ArrayList<>(64);
+            Map<String, String> properties = new HashMap<>();
             String type = "[unknown]";
             while (line != null && !beginBase64(line)) {
                 line = readLine.next();
@@ -134,9 +132,7 @@ public class PEMUtil {
             if (!listOfByteArrays.isEmpty()) {
                 decoded = new byte[len];
                 int pos = 0;
-                Iterator it = listOfByteArrays.iterator();
-                while (it.hasNext()) {
-                    byte[] oneLine = (byte[]) it.next();
+                for (final byte[] oneLine : listOfByteArrays) {
                     System.arraycopy(oneLine, 0, decoded, pos, oneLine.length);
                     pos += oneLine.length;
                 }

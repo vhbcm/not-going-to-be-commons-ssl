@@ -56,8 +56,8 @@ import java.util.List;
  */
 public class KeyMaterial extends TrustMaterial {
     private final Object keyManagerFactory;
-    private final List aliases;
-    private final List associatedChains;
+    private final List<String> aliases;
+    private final List<X509Certificate[]> associatedChains;
 
     public KeyMaterial(InputStream jks, char[] password)
         throws GeneralSecurityException, IOException {
@@ -178,12 +178,12 @@ public class KeyMaterial extends TrustMaterial {
         // Only TRUST_ALL and TRUST_THIS_JVM are simple trust types.
         super(KeyStoreBuilder.build(jksOrCerts, key, jksPass, keyPass), 0);
         KeyStore ks = getKeyStore();
-        Enumeration en = ks.aliases();
-        List myAliases = new LinkedList();
-        List myChains = new LinkedList();
+        Enumeration<String> en = ks.aliases();
+        List<String> myAliases = new LinkedList<>();
+        List<X509Certificate[]> myChains = new LinkedList<>();
         while (en.hasMoreElements()) {
             X509Certificate[] c; // chain
-            String alias = (String) en.nextElement();
+            String alias = en.nextElement();
             if (ks.isKeyEntry(alias)) {
                 try {
                     ks.getKey(alias, keyPass);
@@ -219,7 +219,7 @@ public class KeyMaterial extends TrustMaterial {
         return JavaImpl.getKeyManagers(keyManagerFactory);
     }
 
-    public List getAssociatedCertificateChains() {
+    public List<X509Certificate[]> getAssociatedCertificateChains() {
         return associatedChains;
     }
 
@@ -227,7 +227,7 @@ public class KeyMaterial extends TrustMaterial {
         return super.getKeyStore();
     }
 
-    public List getAliases() {
+    public List<String> getAliases() {
         return aliases;
     }
 
@@ -260,14 +260,14 @@ public class KeyMaterial extends TrustMaterial {
     }
 
     public String toString() {
-        List chains = getAssociatedCertificateChains();
-        List aliases = getAliases();
-        Iterator it = chains.iterator();
-        Iterator aliasesIt = aliases.iterator();
+        List<X509Certificate[]> chains = getAssociatedCertificateChains();
+        List<String> aliases = getAliases();
+        Iterator<X509Certificate[]> it = chains.iterator();
+        Iterator<String> aliasesIt = aliases.iterator();
         StringBuilder buf = new StringBuilder(8192);
         while (it.hasNext()) {
-            X509Certificate[] certs = (X509Certificate[]) it.next();
-            String alias = (String) aliasesIt.next();
+            X509Certificate[] certs = it.next();
+            String alias = aliasesIt.next();
             buf.append("Alias: ");
             buf.append(alias);
             buf.append('\n');

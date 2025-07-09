@@ -49,7 +49,7 @@ public class PEMItem {
 
     private final byte[] derBytes;
     public final String pemType;
-    public final Map properties;
+    public final Map<String, String> properties;
 
     public final String dekInfo;
     public final byte[] iv;
@@ -62,14 +62,14 @@ public class PEMItem {
         this(derBytes, type, null);
     }
 
-    public PEMItem(byte[] derBytes, String type, Map properties) {
+    public PEMItem(byte[] derBytes, String type, Map<String, String> properties) {
         this.derBytes = derBytes;
         this.pemType = type;
         if (properties == null) {
-            properties = new TreeMap(); // empty map
+            properties = new TreeMap<>(); // empty map
         }
         this.properties = Collections.unmodifiableMap(properties);
-        String di = (String) properties.get(DEK_INFO);
+        String di = properties.get(DEK_INFO);
         String diCipher = "";
         String diIV = "";
         if (di != null) {
@@ -83,7 +83,7 @@ public class PEMItem {
         }
         this.dekInfo = diCipher;
         this.iv = Hex.decode(diIV);
-        if (!"".equals(diCipher)) {
+        if (!diCipher.isEmpty()) {
             OpenSSL.CipherInfo cipherInfo = OpenSSL.lookup(diCipher);
             this.cipher = cipherInfo.javaCipher;
             this.mode = cipherInfo.blockMode;

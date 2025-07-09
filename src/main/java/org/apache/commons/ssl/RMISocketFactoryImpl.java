@@ -31,6 +31,7 @@
 
 package org.apache.commons.ssl;
 
+import java.util.Map.Entry;
 import javax.net.ServerSocketFactory;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLException;
@@ -111,8 +112,8 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
     private volatile ServerSocketFactory sslServer;
     private volatile String localBindAddress = null;
     private volatile int anonymousPort = 31099;
-    private Map clientMap = new TreeMap();
-    private Map serverSockets = new HashMap();
+    private Map<String, SocketFactory> clientMap = new TreeMap<>();
+    private Map<Integer, ServerSocket> serverSockets = new HashMap<>();
     private final SocketFactory plainClient = SocketFactory.getDefault();
 
     public RMISocketFactoryImpl() throws GeneralSecurityException, IOException {
@@ -162,7 +163,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
             final X509Certificate[] chain = ssl.getAssociatedCertificateChain();
             String[] cns = Certificates.getCNs(chain[0]);
             String[] subjectAlts = Certificates.getDNSSubjectAlts(chain[0]);
-            LinkedList names = new LinkedList();
+            LinkedList<String> names = new LinkedList<>();
             if (cns != null && cns.length > 0) {
                 // Only first CN is used.  Not going to get into the IE6 nonsense
                 // where all CN values are used.
@@ -189,7 +190,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
                 // hope for the best.
                 boolean hopingForBest = false;
                 if (names.size() == 1) {
-                    String name = (String) names.get(0);
+                    String name = names.get(0);
                     if (!name.startsWith("*")) {
                         System.setProperty(RMI_HOSTNAME_KEY, name);
                         log.warn("commons-ssl '" + RMI_HOSTNAME_KEY + "' set to '" + name + "' as found in my SSL Server Certificate.");
@@ -201,18 +202,15 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
                     // do now is grab our internet-facing addresses, reverse-lookup
                     // on them, and hope that one of them validates against our
                     // server cert.
-                    Set s = getMyInternetFacingIPs();
-                    Iterator it = s.iterator();
-                    while (it.hasNext()) {
-                        String name = (String) it.next();
+                    Set<String> s = getMyInternetFacingIPs();
+                    for (final String name : s) {
                         try {
                             VERIFIER.check(name, cns, subjectAlts);
                             System.setProperty(RMI_HOSTNAME_KEY, name);
                             log.warn("commons-ssl '" + RMI_HOSTNAME_KEY + "' set to '" + name + "' as found by reverse-dns against my own IP.");
                             hopingForBest = true;
                             break;
-                        }
-                        catch (SSLException ssle) {
+                        } catch (SSLException ssle) {
                             // next!
                         }
                     }
@@ -250,8 +248,8 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
                 trustEachOther(c, s);
             }
         }
-        Set names = hostnamePossibilities(host);
-        Iterator it = names.iterator();
+        Set<String> names = hostnamePossibilities(host);
+        Iterator<String> it = names.iterator();
         synchronized (this) {
             while (it.hasNext()) {
                 clientMap.put(it.next(), f);
@@ -260,8 +258,8 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
     }
 
     public void removeClient(String host) {
-        Set names = hostnamePossibilities(host);
-        Iterator it = names.iterator();
+        Set<String> names = hostnamePossibilities(host);
+        Iterator<String> it = names.iterator();
         synchronized (this) {
             while (it.hasNext()) {
                 clientMap.remove(it.next());
@@ -270,9 +268,9 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
     }
 
     public synchronized void removeClient(SocketFactory sf) {
-        Iterator it = clientMap.entrySet().iterator();
+        Iterator<Entry<String, SocketFactory>> it = clientMap.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry entry = (Map.Entry) it.next();
+            Entry<String, SocketFactory> entry = it.next();
             Object o = entry.getValue();
             if (sf.equals(o)) {
                 it.remove();
@@ -280,12 +278,12 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
         }
     }
 
-    private Set hostnamePossibilities(String host) {
+    private Set<String> hostnamePossibilities(String host) {
         host = host != null ? host.toLowerCase().trim() : "";
-        if ("".equals(host)) {
-            return Collections.EMPTY_SET;
+        if (host.isEmpty()) {
+            return Collections.emptySet();
         }
-        TreeSet names = new TreeSet();
+        TreeSet<String> names = new TreeSet<>();
         names.add(host);
         InetAddress[] addresses;
         try {
@@ -364,9 +362,10 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
 
     public synchronized SocketFactory getClient(String host) {
         host = host != null ? host.trim().toLowerCase() : "";
-        return (SocketFactory) clientMap.get(host);
+        return clientMap.get(host);
     }
 
+    @Override
     public synchronized ServerSocket createServerSocket(int port)
         throws IOException {
         // Re-use existing ServerSocket if possible.
@@ -374,7 +373,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
             port = anonymousPort;
         }
         Integer key = port;
-        ServerSocket ss = (ServerSocket) serverSockets.get(key);
+        ServerSocket ss = serverSockets.get(key);
         if (ss == null || ss.isClosed()) {
             if (ss != null && ss.isClosed()) {
                 System.out.println("found closed server on port: " + port);
@@ -397,7 +396,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
                 local = InetAddress.getByName(bindAddress);
                 if (!local.isLoopbackAddress()) {
                     String ip = local.getHostAddress();
-                    Set myInternetIps = getMyInternetFacingIPs();
+                    Set<String> myInternetIps = getMyInternetFacingIPs();
                     if (!myInternetIps.contains(ip)) {
                         log.warn("Cannot bind to " + ip + " since it doesn't exist on this machine.");
                         // Not going to be able to bind as this.  Our RMI_HOSTNAME_KEY
@@ -421,7 +420,7 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
 
         SocketFactory sf;
         synchronized (this) {
-            sf = (SocketFactory) clientMap.get(host);
+            sf = clientMap.get(host);
         }
         if (sf == null) {
             sf = defaultClient;
@@ -557,14 +556,14 @@ public class RMISocketFactoryImpl extends RMISocketFactory {
         return ip;
     }
 
-    public static SortedSet getMyInternetFacingIPs() throws SocketException {
-        TreeSet set = new TreeSet();
-        Enumeration en = NetworkInterface.getNetworkInterfaces();
+    public static SortedSet<String> getMyInternetFacingIPs() throws SocketException {
+        TreeSet<String> set = new TreeSet<>();
+        Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
         while (en.hasMoreElements()) {
-            NetworkInterface ni = (NetworkInterface) en.nextElement();
-            Enumeration en2 = ni.getInetAddresses();
+            NetworkInterface ni = en.nextElement();
+            Enumeration<InetAddress> en2 = ni.getInetAddresses();
             while (en2.hasMoreElements()) {
-                InetAddress addr = (InetAddress) en2.nextElement();
+                InetAddress addr = en2.nextElement();
                 if (!addr.isLoopbackAddress()) {
                     String ip = addr.getHostAddress();
                     String reverse = addr.getHostName();

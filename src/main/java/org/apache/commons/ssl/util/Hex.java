@@ -68,7 +68,7 @@ public class Hex {
         StringBuilder buf = new StringBuilder();
         int len = Math.min(offset + length, b.length);
         for (int i = offset; i < len; i++) {
-            int c = (int) b[i];
+            int c = b[i];
             if (c < 0) {
                 c = c + 256;
             }

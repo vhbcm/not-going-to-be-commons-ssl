@@ -88,8 +88,8 @@ public class SSLServer extends SSLServerSocketFactory {
         Integer p8443 = 8443;
         KeyMaterial km;
         TrustMaterial tm;
-        km = (KeyMaterial) TomcatServerXML.KEY_MATERIAL_BY_PORT.get(p8443);
-        tm = (TrustMaterial) TomcatServerXML.TRUST_MATERIAL_BY_PORT.get(p8443);
+        km = TomcatServerXML.KEY_MATERIAL_BY_PORT.get(p8443);
+        tm = TomcatServerXML.TRUST_MATERIAL_BY_PORT.get(p8443);
 
         // If 8443 isn't set, let's take lowest secure port.
         km = km == null ? TomcatServerXML.KEY_MATERIAL : km;
@@ -143,7 +143,7 @@ public class SSLServer extends SSLServerSocketFactory {
         return success;
     }
 
-    public void setDnsOverride(Map m) { ssl.setDnsOverride(m); }
+    public void setDnsOverride(Map<String, String> m) { ssl.setDnsOverride(m); }
 
     public void addTrustMaterial(TrustChain trustChain)
         throws NoSuchAlgorithmException, KeyStoreException,

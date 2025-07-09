@@ -164,19 +164,19 @@ public class PKCS8Key {
         DecryptResult decryptResult =
             new DecryptResult("UNENCRYPTED", 0, encoded);
 
-        List pemItems = PEMUtil.decode(encoded);
+        List<PEMItem> pemItems = PEMUtil.decode(encoded);
         PEMItem keyItem = null;
         byte[] derBytes = null;
         if (pemItems.isEmpty()) {
             // must be DER encoded - PEMUtil wasn't able to extract anything.
             derBytes = encoded;
         } else {
-            Iterator it = pemItems.iterator();
+            Iterator<PEMItem> it = pemItems.iterator();
             boolean opensslRSA = false;
             boolean opensslDSA = false;
 
             while (it.hasNext()) {
-                PEMItem item = (PEMItem) it.next();
+                PEMItem item = it.next();
                 String type = item.pemType.trim().toUpperCase();
                 boolean plainPKCS8 = type.startsWith(PKCS8_UNENCRYPTED);
                 boolean encryptedPKCS8 = type.startsWith(PKCS8_ENCRYPTED);
@@ -200,7 +200,7 @@ public class PKCS8Key {
 
             if (opensslDSA || opensslRSA) {
                 String c = keyItem.cipher.trim();
-                boolean encrypted = !"UNKNOWN".equals(c) && !"".equals(c);
+                boolean encrypted = !"UNKNOWN".equals(c) && !c.isEmpty();
                 if (encrypted) {
                     decryptResult = opensslDecrypt(keyItem, password);
                 }

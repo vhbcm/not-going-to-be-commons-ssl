@@ -58,16 +58,16 @@ import java.util.*;
  */
 public class SSL {
     private final static String[] KNOWN_PROTOCOLS =
-            {"TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3", "SSLv2", "SSLv2Hello"};
+            {"TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1", "SSLv3", "SSLv2", "SSLv2Hello"};
 
     // SUPPORTED_CIPHERS_ARRAY is initialized in the static constructor.
     private final static String[] SUPPORTED_CIPHERS;
 
-    public final static SortedSet KNOWN_PROTOCOLS_SET;
-    public final static SortedSet SUPPORTED_CIPHERS_SET;
+    public final static SortedSet<String> KNOWN_PROTOCOLS_SET;
+    public final static SortedSet<String> SUPPORTED_CIPHERS_SET;
 
     static {
-        TreeSet<String> ts = new TreeSet<String>(Collections.reverseOrder());
+        TreeSet<String> ts = new TreeSet<>(Collections.reverseOrder());
         ts.addAll(Arrays.asList(KNOWN_PROTOCOLS));
         KNOWN_PROTOCOLS_SET = Collections.unmodifiableSortedSet(ts);
 
@@ -75,7 +75,7 @@ public class SSL {
         // reads of "/dev/random" (Linux only?).  You might find you system
         // stuck here.  Move the mouse around a little!
         SSLSocketFactory s = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        ts = new TreeSet<String>();
+        ts = new TreeSet<>();
         SUPPORTED_CIPHERS = s.getSupportedCipherSuites();
         Arrays.sort(SUPPORTED_CIPHERS);
         ts.addAll(Arrays.asList(SUPPORTED_CIPHERS));
@@ -105,7 +105,7 @@ public class SSL {
     private boolean wantClientAuth = true;
     private boolean needClientAuth = false;
     private SSLWrapperFactory sslWrapperFactory = SSLWrapperFactory.NO_WRAP;
-    private Map dnsOverride;
+    private Map<String, String> dnsOverride;
 
     protected final boolean usingSystemProperties;
 
@@ -194,7 +194,7 @@ public class SSL {
 
     String dnsOverride(String host) {
         if (dnsOverride != null && dnsOverride.containsKey(host)) {
-            String override = (String) dnsOverride.get(host);
+            String override = dnsOverride.get(host);
             if (override != null && !"".equals(override.trim())) {
                 return override;
             }
@@ -202,7 +202,7 @@ public class SSL {
         return host;
     }
 
-    public void setDnsOverride(Map m) {
+    public void setDnsOverride(Map<String, String> m) {
         this.dnsOverride = m;
     }
 
@@ -273,8 +273,8 @@ public class SSL {
 
     public X509Certificate[] getAssociatedCertificateChain() {
         if (keyMaterial != null) {
-            List list = keyMaterial.getAssociatedCertificateChains();
-            return (X509Certificate[]) list.get(0);
+            List<X509Certificate[]> list = keyMaterial.getAssociatedCertificateChains();
+            return list.get(0);
         } else {
             return null;
         }
@@ -285,7 +285,7 @@ public class SSL {
     }
 
     public void setEnabledCiphers(String[] ciphers) {
-        HashSet<String> desired = new HashSet<String>(Arrays.asList(ciphers));
+        HashSet<String> desired = new HashSet<>(Arrays.asList(ciphers));
         desired.removeAll(SUPPORTED_CIPHERS_SET);
         if (!desired.isEmpty()) {
             throw new IllegalArgumentException("following ciphers not supported: " + desired);
